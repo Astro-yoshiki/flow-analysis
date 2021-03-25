@@ -165,7 +165,7 @@ class Plotter:
         # 配列要素を2つ飛ばしで描画（::2）
         plt.quiver(self.xx[::2, ::2], self.yy[::2, ::2], self.u[::2, ::2], self.v[::2, ::2],
                    cmap="binary_r", width=0.0075)
-        # plt.savefig("2D-quiverplot.png", bbox_inches="tight")
+        plt.savefig("2D-quiverplot.png", bbox_inches="tight")
         plt.close()
 
     def plot_2d__for_animation(self, figsize=(7, 7)):
@@ -179,7 +179,7 @@ class Plotter:
         # 配列要素を2つ飛ばしで描画（::2）
         ax.quiver(self.xx[::2, ::2], self.yy[::2, ::2], self.u[::2, ::2], self.v[::2, ::2],
                   cmap="binary_r", width=0.0075)
-        # plt.savefig("2D-quiverplot_for_animation.png", bbox_inches="tight")
+        plt.savefig("2D-quiverplot_for_animation.png", bbox_inches="tight")
         plt.close()
 
 
