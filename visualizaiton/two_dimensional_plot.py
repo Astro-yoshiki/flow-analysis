@@ -32,6 +32,8 @@ class Plotter:
         self.x_resolution = None
         self.y_resolution = None
 
+        self.all_params = None
+        self.area_idx = []
         self.t = None
         self.u = None
         self.v = None
@@ -60,6 +62,20 @@ class Plotter:
         if return_grid:
             return self.xx, self.yy
 
+    def mask_area(self, x_idx: int, y_idx: int):
+        x = self.all_params[:, x_idx].reshape(-1, 1)
+        y = self.all_params[:, y_idx].reshape(-1, 1)
+        # TODO: 抽出する領域についての条件式を記述
+        for i in range(x.shape[0]):
+            if 0 <= x[i] <= 76.2 and 239 <= y[i] <= 293:
+                self.area_idx.append(i)
+            elif 78.73 <= x[i] <= 111.5 and 237.5 <= y[i] <= 245:
+                self.area_idx.append(i)
+            elif x[i] <= 111.5 and 148 <= y[i] <= 237.5 and y[i] >= 593.22 - 4.52*x[i]:
+                self.area_idx.append(i)
+            elif 98.5 <= x[i] <= 111.5 and 135 <= y[i] <= 148:
+                self.area_idx.append(i)
+
     def predict_point(self, x):
         x = np.array(x).reshape(1, -1)
         x_std = self.x_scaler.transform(x)
@@ -87,7 +103,7 @@ class Plotter:
                 self.u[i][j] = self.predict_point(cond)[:, 1]
                 self.v[i][j] = self.predict_point(cond)[:, 2]
 
-    def predict_all_cell(self, params: list, return_prediction=False):
+    def predict_all_cell(self, params: list, masking=False, return_prediction=False):
         # 全てのグリッドを用意しておく
         grid_x = np.tile(self.x, self.x_resolution).reshape(-1, 1)
         grid_y = []
@@ -99,12 +115,20 @@ class Plotter:
         params_grid = np.array(params)
         params_grid = np.full((grid_x.shape[0], len(params)), params_grid)
         # 条件と座標を合体させる
-        all_params = np.hstack([params_grid, grid_x, grid_y])
+        self.all_params = np.hstack([params_grid, grid_x, grid_y])
+        # TODO: x, y座標のインデックスを指定
+        if masking:
+            self.mask_area(x_idx=5, y_idx=6)
 
         # モデルによりまとめて予測
-        self.t = self.predict_array(all_params)[:, 0] + 273.15
-        self.u = self.predict_array(all_params)[:, 1]
-        self.v = self.predict_array(all_params)[:, 2]
+        self.t = self.predict_array(self.all_params)[:, 0] + 273.15
+        self.u = self.predict_array(self.all_params)[:, 1]
+        self.v = self.predict_array(self.all_params)[:, 2]
+        # maskingをする場合、領域外の値をnanにする
+        if masking:
+            self.t[self.area_idx] = np.nan
+            self.u[self.area_idx] = np.nan
+            self.v[self.area_idx] = np.nan
         # 座標と対応づけられる形にreshape
         self.t = self.t.reshape(self.x_resolution, self.y_resolution)
         self.u = self.u.reshape(self.x_resolution, self.y_resolution)
@@ -165,7 +189,9 @@ class Plotter:
         # 配列要素を2つ飛ばしで描画（::2）
         plt.quiver(self.xx[::2, ::2], self.yy[::2, ::2], self.u[::2, ::2], self.v[::2, ::2],
                    cmap="binary_r", width=0.0075)
-        plt.savefig("2D-quiverplot.png", bbox_inches="tight")
+        # nanの領域を黒で塗りつぶす
+        cmap.set_bad(color="black")
+        plt.savefig("2D-quiverplot_masked.png", bbox_inches="tight")
         plt.close()
 
     def plot_2d__for_animation(self, figsize=(7, 7)):
@@ -186,8 +212,8 @@ class Plotter:
 if __name__ == "__main__":
     plotter = Plotter()
     plotter.load_model_and_scaler()
-    plotter.make_grid(0.0, 76.2, 30, 135.0, 239.5, 30)
+    plotter.make_grid(0.0, 111.5, 60, 135.0, 293.0, 60)
 
     _params = [2000.701993, 1202.915643, 27.920038, 35.147359, 28.187168]
-    plotter.predict_all_cell(params=_params)
+    plotter.predict_all_cell(params=_params, masking=True)
     plotter.plot_2d_quiverplot()

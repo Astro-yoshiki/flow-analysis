@@ -55,7 +55,7 @@ r_up = 10
 r_down = 60
 
 # scalerの読み込み
-scaler = load("../modeling/result/x_scaler.joblib")
+scaler = load("../../modeling/result/x_scaler.joblib")
 
 
 # テスト関数を用意
