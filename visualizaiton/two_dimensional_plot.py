@@ -161,7 +161,7 @@ class Plotter:
         ax2.set_title("$V [m/s]$")
 
         fig.tight_layout()
-        plt.savefig("2D-plot.png", bbox_inches="tight")
+        # plt.savefig("2D-plot.png", bbox_inches="tight")
         plt.close()
 
     def plot_2d_streamplot(self):
@@ -176,7 +176,7 @@ class Plotter:
                        color=np.sqrt(self.u[::3, ::3] ** 2 + self.v[::3, ::3] ** 2), cmap="binary_r")
         # ベクトル場の大きさで流線の色をつける
         # plt.colorbar()
-        plt.savefig("2D-streamplot.png", bbox_inches="tight")
+        # plt.savefig("2D-streamplot.png", bbox_inches="tight")
         plt.close()
 
     def plot_2d_quiverplot(self):
@@ -191,7 +191,7 @@ class Plotter:
                    cmap="binary_r", width=0.0075)
         # nanの領域を黒で塗りつぶす
         cmap.set_bad(color="black")
-        plt.savefig("2D-quiverplot_masked.png", bbox_inches="tight")
+        # plt.savefig("2D-quiverplot_masked.png", bbox_inches="tight")
         plt.close()
 
     def plot_2d__for_animation(self, figsize=(7, 7)):
@@ -205,7 +205,7 @@ class Plotter:
         # 配列要素を2つ飛ばしで描画（::2）
         ax.quiver(self.xx[::2, ::2], self.yy[::2, ::2], self.u[::2, ::2], self.v[::2, ::2],
                   cmap="binary_r", width=0.0075)
-        plt.savefig("2D-quiverplot_for_animation.png", bbox_inches="tight")
+        # plt.savefig("2D-quiverplot_for_animation.png", bbox_inches="tight")
         plt.close()
 
 
